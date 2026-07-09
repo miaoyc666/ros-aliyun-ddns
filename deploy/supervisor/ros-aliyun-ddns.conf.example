@@ -1,0 +1,14 @@
+[program:ros-aliyun-ddns]
+directory=/opt/ros-aliyun-ddns
+command=/usr/bin/make gunicorn
+autostart=true
+autorestart=true
+startsecs=5
+stopasgroup=true
+killasgroup=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/log/ros-aliyun-ddns/supervisor.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=5
+environment=PATH="/opt/ros-aliyun-ddns/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

@@ -94,10 +94,71 @@ set -a; source .env; set +a; .venv/bin/python3 app.py
 
 ## 生产运行
 
-可以使用 Gunicorn 运行：
+可以直接使用 Gunicorn 前台运行：
 
 ```bash
 make gunicorn
+```
+
+更推荐在服务器上用 supervisord 作为守护进程运行，保证服务异常退出后能自动拉起。
+
+### 使用 supervisord
+
+示例配置在 `deploy/supervisor/ros-aliyun-ddns.conf.example`。
+
+先安装服务器依赖：
+
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv make supervisor
+```
+
+假设项目部署在 `/opt/ros-aliyun-ddns`：
+
+```bash
+cd /opt/ros-aliyun-ddns
+make init
+vim .env
+```
+
+确认 `.env` 已填好后，创建日志目录并复制 supervisor 配置：
+
+```bash
+sudo mkdir -p /var/log/ros-aliyun-ddns
+sudo chown www-data:www-data /var/log/ros-aliyun-ddns
+sudo cp deploy/supervisor/ros-aliyun-ddns.conf.example /etc/supervisor/conf.d/ros-aliyun-ddns.conf
+```
+
+根据实际部署路径和运行用户编辑配置：
+
+```bash
+sudo vim /etc/supervisor/conf.d/ros-aliyun-ddns.conf
+```
+
+至少确认这些字段正确：
+
+```ini
+directory=/opt/ros-aliyun-ddns
+command=/usr/bin/make gunicorn
+user=www-data
+stdout_logfile=/var/log/ros-aliyun-ddns/supervisor.log
+```
+
+如果你把 `user` 改成其他用户，也要同步调整 `/var/log/ros-aliyun-ddns` 的目录 owner。
+
+加载并启动服务：
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start ros-aliyun-ddns
+```
+
+查看状态和日志：
+
+```bash
+sudo supervisorctl status ros-aliyun-ddns
+sudo tail -f /var/log/ros-aliyun-ddns/supervisor.log
 ```
 
 如果放在公网，建议在前面加反向代理并启用 HTTPS，例如 Nginx、Caddy 或 Traefik。
