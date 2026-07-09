@@ -49,7 +49,7 @@ def update_record(fqdn: str, ip: str) -> str:
 
     describe_req = alidns_models.DescribeDomainRecordsRequest(
         domain_name=main_domain,
-        rr_key_word=rr,
+        rrkey_word=rr,
         type="A",
     )
     records = client.describe_domain_records(describe_req).body.domain_records.record
