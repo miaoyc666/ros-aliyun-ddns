@@ -272,6 +272,44 @@ example.com       -> RR=@,     Domain=example.com
 - 为阿里云 RAM 用户配置最小权限。
 - 不要提交 `.env` 或任何密钥文件。
 
+## 开发计划
+
+### Docker 部署支持
+
+计划新增 Docker 部署方式，方便在 NAS、VPS、Homelab 服务器和容器平台中运行。
+
+- 新增 `Dockerfile`，使用轻量 Python 基础镜像构建运行环境。
+- 新增 `.dockerignore`，避免把 `.env`、`.venv`、缓存和 IDE 配置打进镜像。
+- 新增 `docker-compose.yml.example`，支持通过 `env_file: .env` 读取配置。
+- 在 `Makefile` 中新增 `docker-build`、`docker-run`、`docker-compose-up` 等命令。
+- README 增加 Docker 安装、启动、停止、查看日志和升级步骤。
+- 明确容器默认暴露 `6180` 端口，并支持通过反向代理提供 HTTPS。
+- 增加部署验证命令，确认 `/ddns` 接口能正常返回 `401`、`400` 等预期状态。
+
+预期使用方式：
+
+```bash
+cp .env.example .env
+vim .env
+docker compose up -d
+```
+
+或者：
+
+```bash
+docker run -d \
+  --name ros-aliyun-ddns \
+  --restart unless-stopped \
+  --env-file .env \
+  -p 6180:6180 \
+  ros-aliyun-ddns:latest
+```
+
+## Contributors
+
+- miaoyc
+- Codex
+
 ## 常见错误
 
 - `401 unauthorized`：`token` 不正确。
