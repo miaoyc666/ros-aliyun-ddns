@@ -34,7 +34,7 @@ def get_client() -> Client:
 
 
 def split_domain(fqdn: str) -> tuple[str, str]:
-    """把 proxy.myc.ink 拆成 (RR=proxy, 主域名=myc.ink)"""
+    """把 proxy.example.com 拆成 (RR=proxy, 主域名=example.com)"""
     parts = fqdn.split(".")
     if len(parts) < 2:
         raise ValueError(f"invalid domain: {fqdn}")

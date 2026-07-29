@@ -217,7 +217,7 @@ example.com       -> RR=@,     Domain=example.com
 
 进入 `[System]` -> `[Scripts]` -> `[+]`，新增脚本并指定脚本名称，例如 `update-ddns`。这个名称后面配置定时任务时要用。
 
-以下脚本会先获取当前公网 IPv4，然后请求本服务更新阿里云 DNS 记录：
+以下脚本会直接请求本服务更新阿里云 DNS 记录。默认不传 `ip` 参数，由服务端使用请求来源 IP 作为公网 IP：
 
 ```routeros
 # Update Aliyun DDNS through the proxy service
@@ -231,12 +231,8 @@ example.com       -> RR=@,     Domain=example.com
 # Domain to update
 :global ddnsDomain "proxy.example.com"
 
-# Get current public IPv4
-:local ipResult [/tool fetch url="https://api.ipify.org" check-certificate=no as-value output=user]
-:local currentIp ($ipResult->"data")
-
 # Update DNS record
-:local results [/tool fetch url=($ddnsUrl . "?token=" . $ddnsToken . "&domain=" . $ddnsDomain . "&ip=" . $currentIp) check-certificate=no as-value output=user]
+:local results [/tool fetch url=($ddnsUrl . "?token=" . $ddnsToken . "&domain=" . $ddnsDomain) check-certificate=no as-value output=user]
 
 :if ($results->"status" = "finished") do={
     :local result ($results->"data")
@@ -250,6 +246,13 @@ example.com       -> RR=@,     Domain=example.com
 
 ```routeros
 /tool fetch url=("https://ddns.example.com/ddns?token=your-random-token&domain=proxy.example.com&ip=" . $currentIp) check-certificate=no keep-result=no
+```
+
+如果直接使用服务器 IP 和端口，请确认 URL 里包含 `/ddns?`：
+
+```routeros
+:global ddnsUrl "http://203.0.113.10:6180/ddns"
+:local results [/tool fetch url=($ddnsUrl . "?token=" . $ddnsToken . "&domain=" . $ddnsDomain) check-certificate=no as-value output=user]
 ```
 
 ### 配置定时任务
@@ -273,4 +276,5 @@ example.com       -> RR=@,     Domain=example.com
 
 - `401 unauthorized`：`token` 不正确。
 - `400 missing domain`：缺少 `domain` 参数。
+- `404`：请求路径不正确。确认 RouterOS 脚本里的服务地址是 `/ddns?token=...&domain=...&ip=...`，不是服务器根路径，也不是 `/token=...`。
 - `500`：阿里云接口调用失败、权限不足、域名不在当前账号下，或环境变量未正确配置。
