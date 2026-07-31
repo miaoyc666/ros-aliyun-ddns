@@ -5,10 +5,10 @@ VENV := .venv
 VENV_PYTHON := $(VENV)/bin/python3
 PIP := $(VENV_PYTHON) -m pip
 DOCKER_IMAGE ?= ros-aliyun-ddns:latest
-DOCKER_COMPOSE ?= docker compose
+DOCKER_COMPOSE ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
 COMPOSE_FILE ?= docker/docker-compose.yml
 
-.PHONY: help init env install run dev gunicorn check docker-build docker-compose-init docker-compose-up docker-compose-down docker-compose-logs
+.PHONY: help init env install run dev gunicorn check docker-build docker-compose-init docker-compose-version docker-compose-up docker-compose-down docker-compose-logs
 
 help:
 	@echo "Available targets:"
@@ -21,6 +21,7 @@ help:
 	@echo "  make check     Run dependency and syntax checks"
 	@echo "  make docker-build         Build the Docker image"
 	@echo "  make docker-compose-init  Create docker/docker-compose.yml if missing"
+	@echo "  make docker-compose-version Show the Docker Compose command in use"
 	@echo "  make docker-compose-up    Start with Docker Compose"
 	@echo "  make docker-compose-down  Stop Docker Compose services"
 	@echo "  make docker-compose-logs  Follow Docker Compose logs"
@@ -64,6 +65,9 @@ docker-compose-init:
 	else \
 		echo "docker/docker-compose.yml already exists."; \
 	fi
+
+docker-compose-version:
+	$(DOCKER_COMPOSE) version
 
 docker-compose-up: docker-compose-init
 	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d --build

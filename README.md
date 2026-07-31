@@ -129,6 +129,7 @@ make docker-build
 使用 Makefile 构建并启动：
 
 ```bash
+make docker-compose-version
 make docker-compose-up
 ```
 
@@ -147,9 +148,15 @@ make docker-compose-down
 也可以直接使用 Docker Compose 命令：
 
 ```bash
+# Docker Compose v2
 docker compose -f docker/docker-compose.yml up -d --build
 docker compose -f docker/docker-compose.yml logs -f
 docker compose -f docker/docker-compose.yml down
+
+# Docker Compose v1
+docker-compose -f docker/docker-compose.yml up -d --build
+docker-compose -f docker/docker-compose.yml logs -f
+docker-compose -f docker/docker-compose.yml down
 ```
 
 容器默认监听 `6180`：
