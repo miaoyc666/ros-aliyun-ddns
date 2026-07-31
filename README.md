@@ -20,6 +20,7 @@
 - Flask
 - Gunicorn
 - Alibaba Cloud DNS SDK
+- Docker
 
 ## 环境变量
 
@@ -100,7 +101,96 @@ set -a; source .env; set +a; .venv/bin/python3 app.py
 make gunicorn
 ```
 
-更推荐在服务器上用 supervisord 作为守护进程运行，保证服务异常退出后能自动拉起。
+### 使用 Docker
+
+Docker 部署会通过 `.env` 注入密钥，不会把 `.env` 打进镜像。
+
+先准备环境变量：
+
+```bash
+cp .env.example .env
+vim .env
+```
+
+使用 Makefile 构建并启动：
+
+```bash
+make docker-build
+make docker-run
+```
+
+容器默认监听 `6180`：
+
+```bash
+curl "http://127.0.0.1:6180/ddns"
+```
+
+未携带 `token` 时返回 `401 unauthorized` 属于预期结果，说明服务已经启动并能响应请求。
+
+镜像内置 Docker healthcheck，会定期访问 `/ddns` 并把非 5xx 响应视为健康。
+
+查看日志：
+
+```bash
+make docker-logs
+```
+
+停止容器：
+
+```bash
+make docker-stop
+```
+
+也可以直接使用 Docker 命令：
+
+```bash
+docker build -t ros-aliyun-ddns:latest .
+docker run -d \
+  --name ros-aliyun-ddns \
+  --restart unless-stopped \
+  --env-file .env \
+  -p 6180:6180 \
+  ros-aliyun-ddns:latest
+```
+
+### 使用 Docker Compose
+
+复制 Compose 示例配置：
+
+```bash
+cp docker-compose.yml.example docker-compose.yml
+```
+
+`docker-compose.yml` 已加入 `.gitignore`，可以按服务器实际情况本地修改。
+
+启动：
+
+```bash
+docker compose up -d --build
+```
+
+查看状态和日志：
+
+```bash
+docker compose ps
+docker compose logs -f
+```
+
+停止：
+
+```bash
+docker compose down
+```
+
+如果只想使用示例文件，不复制为 `docker-compose.yml`，也可以执行：
+
+```bash
+make docker-compose-up
+make docker-compose-logs
+make docker-compose-down
+```
+
+如果不使用 Docker，也可以在服务器上用 supervisord 作为守护进程运行，保证服务异常退出后能自动拉起。
 
 ### 使用 supervisord
 
@@ -271,39 +361,6 @@ example.com       -> RR=@,     Domain=example.com
 - 公网部署时启用 HTTPS。
 - 为阿里云 RAM 用户配置最小权限。
 - 不要提交 `.env` 或任何密钥文件。
-
-## 开发计划
-
-### Docker 部署支持
-
-计划新增 Docker 部署方式，方便在 NAS、VPS、Homelab 服务器和容器平台中运行。
-
-- 新增 `Dockerfile`，使用轻量 Python 基础镜像构建运行环境。
-- 新增 `.dockerignore`，避免把 `.env`、`.venv`、缓存和 IDE 配置打进镜像。
-- 新增 `docker-compose.yml.example`，支持通过 `env_file: .env` 读取配置。
-- 在 `Makefile` 中新增 `docker-build`、`docker-run`、`docker-compose-up` 等命令。
-- README 增加 Docker 安装、启动、停止、查看日志和升级步骤。
-- 明确容器默认暴露 `6180` 端口，并支持通过反向代理提供 HTTPS。
-- 增加部署验证命令，确认 `/ddns` 接口能正常返回 `401`、`400` 等预期状态。
-
-预期使用方式：
-
-```bash
-cp .env.example .env
-vim .env
-docker compose up -d
-```
-
-或者：
-
-```bash
-docker run -d \
-  --name ros-aliyun-ddns \
-  --restart unless-stopped \
-  --env-file .env \
-  -p 6180:6180 \
-  ros-aliyun-ddns:latest
-```
 
 ## Contributors
 

@@ -1,0 +1,12 @@
+services:
+  ros-aliyun-ddns:
+    build: .
+    image: ros-aliyun-ddns:latest
+    container_name: ros-aliyun-ddns
+    restart: unless-stopped
+    environment:
+      DDNS_PROXY_TOKEN: change-me-to-a-random-string
+      ALIYUN_ACCESS_KEY_ID: your-access-key-id
+      ALIYUN_ACCESS_KEY_SECRET: your-access-key-secret
+    ports:
+      - "6180:6180"
