@@ -1,5 +1,3 @@
-name: ros-aliyun-ddns
-
 services:
   ros-aliyun-ddns:
     build:

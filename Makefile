@@ -6,6 +6,7 @@ VENV_PYTHON := $(VENV)/bin/python3
 PIP := $(VENV_PYTHON) -m pip
 DOCKER_IMAGE ?= ros-aliyun-ddns:latest
 DOCKER_COMPOSE ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
+COMPOSE_PROJECT_NAME ?= ros-aliyun-ddns
 COMPOSE_FILE ?= docker/docker-compose.yml
 
 .PHONY: help init env install run dev gunicorn check docker-build docker-compose-init docker-compose-version docker-compose-up docker-compose-down docker-compose-logs
@@ -63,17 +64,17 @@ docker-compose-init:
 		cp docker/docker-compose.yml.example docker/docker-compose.yml; \
 		echo "Created docker/docker-compose.yml from docker/docker-compose.yml.example."; \
 	else \
-		echo "docker/docker-compose.yml already exists."; \
+		echo "docker/docker-compose.yml already exists. Recreate it if docker/docker-compose.yml.example changed."; \
 	fi
 
 docker-compose-version:
 	$(DOCKER_COMPOSE) version
 
 docker-compose-up: docker-compose-init
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d --build
+	$(DOCKER_COMPOSE) -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE) up -d --build
 
 docker-compose-down: docker-compose-init
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down
+	$(DOCKER_COMPOSE) -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE) down
 
 docker-compose-logs: docker-compose-init
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) logs -f
+	$(DOCKER_COMPOSE) -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE) logs -f

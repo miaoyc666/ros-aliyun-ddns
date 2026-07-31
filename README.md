@@ -120,6 +120,12 @@ make docker-compose-init
 
 `docker/docker-compose.yml` 已加入 `.gitignore`，可以按服务器实际情况本地修改。
 
+如果你已经复制过旧版本的 `docker/docker-compose.yml`，请删除文件中的顶层 `name:` 字段，或重新复制示例：
+
+```bash
+cp docker/docker-compose.yml.example docker/docker-compose.yml
+```
+
 如果只需要构建镜像：
 
 ```bash
@@ -149,14 +155,14 @@ make docker-compose-down
 
 ```bash
 # Docker Compose v2
-docker compose -f docker/docker-compose.yml up -d --build
-docker compose -f docker/docker-compose.yml logs -f
-docker compose -f docker/docker-compose.yml down
+docker compose -p ros-aliyun-ddns -f docker/docker-compose.yml up -d --build
+docker compose -p ros-aliyun-ddns -f docker/docker-compose.yml logs -f
+docker compose -p ros-aliyun-ddns -f docker/docker-compose.yml down
 
 # Docker Compose v1
-docker-compose -f docker/docker-compose.yml up -d --build
-docker-compose -f docker/docker-compose.yml logs -f
-docker-compose -f docker/docker-compose.yml down
+docker-compose -p ros-aliyun-ddns -f docker/docker-compose.yml up -d --build
+docker-compose -p ros-aliyun-ddns -f docker/docker-compose.yml logs -f
+docker-compose -p ros-aliyun-ddns -f docker/docker-compose.yml down
 ```
 
 容器默认监听 `6180`：
