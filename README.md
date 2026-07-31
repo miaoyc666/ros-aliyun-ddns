@@ -357,4 +357,5 @@ example.com       -> RR=@,     Domain=example.com
 - `401 unauthorized`：`token` 不正确。
 - `400 missing domain`：缺少 `domain` 参数。
 - `404`：请求路径不正确。确认 RouterOS 脚本里的服务地址是 `/ddns?token=...&domain=...&ip=...`，不是服务器根路径，也不是 `/token=...`。
-- `500`：阿里云接口调用失败、权限不足、域名不在当前账号下，或环境变量未正确配置。
+- `500`：阿里云接口调用失败、权限不足、域名不在当前账号下，或环境变量未正确配置。查看容器日志中的 `ddns update failed` 可以看到阿里云返回的具体错误码。
+- `DomainRecordDuplicate`：通常是 DNS 记录已存在，或旧版本服务用模糊查询拿错了记录。升级到使用 `DescribeSubDomainRecords` 的版本后，会按完整子域名精确查询 A 记录，并在 IP 未变化时跳过更新。

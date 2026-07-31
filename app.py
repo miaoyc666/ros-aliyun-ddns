@@ -47,14 +47,18 @@ def update_record(fqdn: str, ip: str) -> str:
     rr, main_domain = split_domain(fqdn)
     client = get_client()
 
-    describe_req = alidns_models.DescribeDomainRecordsRequest(
+    describe_req = alidns_models.DescribeSubDomainRecordsRequest(
         domain_name=main_domain,
-        rrkey_word=rr,
+        sub_domain=fqdn,
         type="A",
     )
-    records = client.describe_domain_records(describe_req).body.domain_records.record
+    records = client.describe_sub_domain_records(describe_req).body.domain_records.record
 
     if records:
+        for record in records:
+            if record.value == ip:
+                return f"unchanged {fqdn} -> {ip}"
+
         record_id = records[0].record_id
         update_req = alidns_models.UpdateDomainRecordRequest(
             record_id=record_id,

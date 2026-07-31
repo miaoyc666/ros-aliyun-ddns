@@ -54,7 +54,8 @@ gunicorn:
 
 check:
 	$(PIP) check
-	DDNS_PROXY_TOKEN=dummy ALIYUN_ACCESS_KEY_ID=dummy ALIYUN_ACCESS_KEY_SECRET=dummy $(VENV_PYTHON) -m py_compile app.py docker/healthcheck.py
+	DDNS_PROXY_TOKEN=dummy ALIYUN_ACCESS_KEY_ID=dummy ALIYUN_ACCESS_KEY_SECRET=dummy $(VENV_PYTHON) -m py_compile app.py docker/healthcheck.py test_app.py
+	$(VENV_PYTHON) -m unittest
 
 docker-build:
 	docker build -f docker/Dockerfile -t $(DOCKER_IMAGE) .
