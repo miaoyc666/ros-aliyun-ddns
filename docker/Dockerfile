@@ -9,7 +9,7 @@ COPY requirements.txt constraints.txt /app/
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt -c constraints.txt
 
-COPY app.py healthcheck.py /app/
+COPY app.py docker/healthcheck.py /app/
 
 RUN useradd --create-home --shell /usr/sbin/nologin appuser
 USER appuser

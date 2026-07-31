@@ -1,0 +1,14 @@
+name: ros-aliyun-ddns
+
+services:
+  ros-aliyun-ddns:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ros-aliyun-ddns:latest
+    container_name: ros-aliyun-ddns
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "6180:6180"

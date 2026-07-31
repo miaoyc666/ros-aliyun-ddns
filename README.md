@@ -101,9 +101,9 @@ set -a; source .env; set +a; .venv/bin/python3 app.py
 make gunicorn
 ```
 
-### 使用 Docker
+### 使用 Docker Compose
 
-Docker 部署会通过 `.env` 注入密钥，不会把 `.env` 打进镜像。
+Dockerfile、Compose 示例和健康检查脚本统一放在 `docker/` 目录下。Docker Compose 会通过 `.env` 注入密钥，不会把 `.env` 打进镜像。
 
 先准备环境变量：
 
@@ -112,11 +112,44 @@ cp .env.example .env
 vim .env
 ```
 
-使用 Makefile 构建并启动：
+复制 Compose 示例配置：
+
+```bash
+make docker-compose-init
+```
+
+`docker/docker-compose.yml` 已加入 `.gitignore`，可以按服务器实际情况本地修改。
+
+如果只需要构建镜像：
 
 ```bash
 make docker-build
-make docker-run
+```
+
+使用 Makefile 构建并启动：
+
+```bash
+make docker-compose-up
+```
+
+查看日志：
+
+```bash
+make docker-compose-logs
+```
+
+停止：
+
+```bash
+make docker-compose-down
+```
+
+也可以直接使用 Docker Compose 命令：
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --build
+docker compose -f docker/docker-compose.yml logs -f
+docker compose -f docker/docker-compose.yml down
 ```
 
 容器默认监听 `6180`：
@@ -128,67 +161,6 @@ curl "http://127.0.0.1:6180/ddns"
 未携带 `token` 时返回 `401 unauthorized` 属于预期结果，说明服务已经启动并能响应请求。
 
 镜像内置 Docker healthcheck，会定期访问 `/ddns` 并把非 5xx 响应视为健康。
-
-查看日志：
-
-```bash
-make docker-logs
-```
-
-停止容器：
-
-```bash
-make docker-stop
-```
-
-也可以直接使用 Docker 命令：
-
-```bash
-docker build -t ros-aliyun-ddns:latest .
-docker run -d \
-  --name ros-aliyun-ddns \
-  --restart unless-stopped \
-  --env-file .env \
-  -p 6180:6180 \
-  ros-aliyun-ddns:latest
-```
-
-### 使用 Docker Compose
-
-复制 Compose 示例配置：
-
-```bash
-cp docker-compose.yml.example docker-compose.yml
-```
-
-`docker-compose.yml` 已加入 `.gitignore`，可以按服务器实际情况本地修改。
-
-启动：
-
-```bash
-docker compose up -d --build
-```
-
-查看状态和日志：
-
-```bash
-docker compose ps
-docker compose logs -f
-```
-
-停止：
-
-```bash
-docker compose down
-```
-
-如果只想使用示例文件，不复制为 `docker-compose.yml`，也可以执行：
-
-```bash
-make docker-compose-up
-make docker-compose-logs
-make docker-compose-down
-```
 
 如果不使用 Docker，也可以在服务器上用 supervisord 作为守护进程运行，保证服务异常退出后能自动拉起。
 
