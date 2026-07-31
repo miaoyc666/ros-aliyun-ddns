@@ -43,7 +43,7 @@ $(VENV)/bin/activate:
 
 install: $(VENV)/bin/activate
 	$(PIP) install --upgrade pip setuptools wheel
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements.txt -c constraints.txt
 
 run:
 	set -a; source .env; set +a; $(VENV_PYTHON) app.py

@@ -1,0 +1,21 @@
+# Pin Alibaba Cloud SDK transitive dependencies to avoid slow or failing
+# resolver backtracking during Docker builds on Linux servers.
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.5
+aiosignal==1.4.0
+alibabacloud-gateway-spi==0.0.4
+alibabacloud-openapi-util==0.2.4
+alibabacloud-tea==0.4.3
+alibabacloud-tea-util==0.3.14
+alibabacloud_credentials==0.3.6
+alibabacloud_endpoint_util==0.0.4
+alibabacloud_tea_xml==0.0.3
+async-timeout==5.0.1
+attrs==26.1.0
+cffi==2.0.0
+cryptography==49.0.0
+frozenlist==1.8.0
+multidict==6.7.1
+propcache==0.4.1
+requests==2.32.5
+yarl==1.22.0
